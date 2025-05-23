@@ -6,14 +6,17 @@ import shutil
 from faker import Faker
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+
 def remove_diacritics(text):
     normalized_text = unicodedata.normalize('NFD', text)
     return ''.join(norm_text for norm_text in normalized_text if unicodedata.category(norm_text) != 'Mn')
+
 
 def replace_letters(text, mapping):
     for letter, rune in mapping.items():
         text = text.replace(letter, rune)
     return text
+
 
 def main():
     characters_folder = 'characters'
