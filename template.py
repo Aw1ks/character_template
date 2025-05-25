@@ -176,11 +176,11 @@ def main():
     }
 
     try:
-        count = int(input("Сколько персонажей нужно создать? "))
+        count_heroes = int(input("Сколько персонажей нужно создать? "))
     except ValueError:
         print("Некорректный ввод.")
 
-    for i in range(count):
+    for number_heroes in range(count_heroes):
         fake = Faker("ru_RU")
 
         selected_skills = random.sample(skills, 3)
@@ -225,7 +225,7 @@ def main():
             third_skill=dictionary['skill_3'],
         )
 
-        filename = f"characters/character_{i+1}.html"
+        filename = f"characters/character_{number_heroes+1}.html"
         with open(filename, 'w', encoding='utf8') as file:
             file.write(rendered_page)
 
