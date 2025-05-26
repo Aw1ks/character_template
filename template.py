@@ -3,7 +3,6 @@ import random
 import unicodedata
 import shutil
 
-from faker import Faker
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
@@ -16,6 +15,56 @@ def replace_letters(text, mapping):
     for letter, rune in mapping.items():
         text = text.replace(letter, rune)
     return text
+
+
+def string_comparison(input_word, list_options, mapping):
+    normalized_word = input_word.replace(' ', '').lower()
+
+    for word in list_options:
+        if word.replace(' ', '').lower() == normalized_word:
+            print(word)
+            runic_word = replace_letters(word, mapping)
+            break
+    else:
+        print("Раса не найдена.") 
+
+    return runic_word
+
+
+
+def choose_character_option(list_options, character_input, letters, clases_base=None):
+    while True:
+        str_options = '\n'.join(f"{num + 1}. {option}" for num, option in enumerate(list_options))
+        user_input = input(f"{character_input}\n{str_options}\n")
+        runic_option = None
+        characteristics = None
+
+        try:
+            index = int(user_input) - 1
+            if 0 <= index < len(list_options):
+                chosen_option = list_options[index]
+                runic_option = replace_letters(chosen_option, letters)
+                if clases_base:
+                    characteristics = clases_base.get(chosen_option, {})
+                break
+            else:
+                print("Неверный номер. Попробуйте еще раз.")
+
+        except ValueError:
+            input_lower = user_input.replace(' ', '').lower()
+            correspondence = False
+            for option in list_options:
+                if option.replace(' ', '').lower() == input_lower:
+                    runic_option = replace_letters(option, letters)
+                    if clases_base:
+                        characteristics = clases_base.get(option, {})
+                    correspondence = True
+                    break
+            if correspondence:
+                break
+            else:
+                print("Расса или класс не найдена. Попробуйте еще раз.")
+    return runic_option, characteristics
 
 
 def main():
@@ -175,31 +224,33 @@ def main():
         },
     }
 
-    try:
-        count_heroes = int(input("Сколько персонажей нужно создать? "))
-    except ValueError:
-        print("Некорректный ввод.")
+    count_heroes = int(input("Сколько персонажей нужно создать? (напишите цифрой): "))
 
     for number_heroes in range(count_heroes):
-        fake = Faker("ru_RU")
+        hero_name = input("\nВведите имя персонажа: ")
+        runic_name = replace_letters(hero_name, letters)
+
+        runic_race, _ = choose_character_option(
+            character_race,
+            "Выберите расу персонажа из предложенных (введите номер или название):",
+            letters
+        )
+
+        runic_class, class_characteristics = choose_character_option(
+            character_classes,
+            "Выберите класс персонажа из предложенных (введите номер или название):",
+            letters,
+            clases_base
+        )
 
         selected_skills = random.sample(skills, 3)
         runic_skills = [replace_letters(skill, letters) for skill in selected_skills]
 
-        race = random.choice(character_race)
-        race_rune = replace_letters(race, letters)
-
-        character_class = random.choice(character_classes)
-        class_rune = replace_letters(character_class, letters)
-
-        class_key = remove_diacritics(character_class)
-        class_characteristics = clases_base.get(class_key, {})
-
         dictionary = {
             "image_path": class_characteristics['image_path'],
-            "first_name": fake.first_name(),
-            "character_race": race_rune,
-            "character_class": class_rune,
+            "name": runic_name.capitalize(),
+            "character_race": runic_race,
+            "character_class": runic_class,
             "strength": class_characteristics['strength'],
             "agility": class_characteristics['agility'],
             "intelligence": class_characteristics['intelligence'],
@@ -212,7 +263,7 @@ def main():
 
         rendered_page = template.render(
             image=dictionary['image_path'],
-            name=dictionary['first_name'],
+            name=dictionary['name'],
             race=dictionary['character_race'],
             character_class=dictionary['character_class'],
             strength=dictionary['strength'],
