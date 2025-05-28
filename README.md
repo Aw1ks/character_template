@@ -23,4 +23,5 @@ After running the script and entering a number, for example, 3, three HTML files
 * `characters/character_1.html`
 * `characters/character_2.html`
 * `characters/character_3.html`
+
 Each file will contain an HTML page with a description of one generated character. When these files are opened in the browser, information about the character (name, race, class, stats, skills) will be displayed with a corresponding image.
