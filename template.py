@@ -35,7 +35,7 @@ def string_comparison(input_word, list_options, mapping):
 def choose_character_option(list_options, character_input, letters, clases_base=None):
     while True:
         str_options = '\n'.join(f"{num + 1}. {option}" for num, option in enumerate(list_options))
-        user_input = input(f"{character_input}\n{str_options}\n")
+        user_input = input(f"{character_input}\n{str_options}\nВведите номер или название: ")
         runic_option = None
         characteristics = None
 
@@ -232,13 +232,13 @@ def main():
 
         runic_race, _ = choose_character_option(
             character_race,
-            "Выберите расу персонажа из предложенных (введите номер или название):",
+            "Выберите расу персонажа из предложенных: ",
             letters
         )
 
         runic_class, class_characteristics = choose_character_option(
             character_classes,
-            "Выберите класс персонажа из предложенных (введите номер или название):",
+            "Выберите класс персонажа из предложенных: ",
             letters,
             clases_base
         )
