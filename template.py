@@ -1,49 +1,21 @@
 import os
 import random
-import unicodedata
 import shutil
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
-def remove_diacritics(text):
-    normalized_text = unicodedata.normalize('NFD', text)
-    return ''.join(norm_text for norm_text in normalized_text if unicodedata.category(norm_text) != 'Mn')
-
-
-def replace_letters(text, mapping):
-    for letter, rune in mapping.items():
-        text = text.replace(letter, rune)
-    return text
-
-
-def string_comparison(input_word, list_options, mapping):
-    normalized_word = input_word.replace(' ', '').lower()
-
-    for word in list_options:
-        if word.replace(' ', '').lower() == normalized_word:
-            print(word)
-            runic_word = replace_letters(word, mapping)
-            break
-    else:
-        print("Раса не найдена.") 
-
-    return runic_word
-
-
-
-def choose_character_option(list_options, character_input, letters, clases_base=None):
+def choose_character_option(list_options, character_input, clases_base=None):
     while True:
         str_options = '\n'.join(f"{num + 1}. {option}" for num, option in enumerate(list_options))
         user_input = input(f"{character_input}\n{str_options}\nВведите номер или название: ")
-        runic_option = None
+        chosen_option = None
         characteristics = None
 
         try:
             index = int(user_input) - 1
             if 0 <= index < len(list_options):
                 chosen_option = list_options[index]
-                runic_option = replace_letters(chosen_option, letters)
                 if clases_base:
                     characteristics = clases_base.get(chosen_option, {})
                 break
@@ -55,7 +27,7 @@ def choose_character_option(list_options, character_input, letters, clases_base=
             correspondence = False
             for option in list_options:
                 if option.replace(' ', '').lower() == input_lower:
-                    runic_option = replace_letters(option, letters)
+                    chosen_option = option
                     if clases_base:
                         characteristics = clases_base.get(option, {})
                     correspondence = True
@@ -64,7 +36,7 @@ def choose_character_option(list_options, character_input, letters, clases_base=
                 break
             else:
                 print("Расса или класс не найдена. Попробуйте еще раз.")
-    return runic_option, characteristics
+    return chosen_option, characteristics
 
 
 def main():
@@ -78,76 +50,6 @@ def main():
         autoescape=select_autoescape(['html'])
     )
     template = env.get_template('template.html')
-
-    letters = {
-        'а': 'а͠',
-        'б': 'б̋',
-        'в': 'в͒͠',
-        'г': 'г͒͠',
-        'д': 'д̋',
-        'е': 'е͠',
-        'ё': 'ё͒͠',
-        'ж': 'ж͒',
-        'з': 'з̋̋͠',
-        'и': 'и',
-        'й': 'й͒͠',
-        'к': 'к̋̋',
-        'л': 'л̋͠',
-        'м': 'м͒͠',
-        'н': 'н͒',
-        'о': 'о̋',
-        'п': 'п̋͠',
-        'р': 'р̋͠',
-        'с': 'с͒',
-        'т': 'т͒',
-        'у': 'у͒͠',
-        'ф': 'ф̋̋͠',
-        'х': 'х͒͠',
-        'ц': 'ц̋',
-        'ч': 'ч̋͠',
-        'ш': 'ш͒͠',
-        'щ': 'щ̋',
-        'ъ': 'ъ̋͠',
-        'ы': 'ы̋͠',
-        'ь': 'ь̋',
-        'э': 'э͒͠͠',
-        'ю': 'ю̋͠',
-        'я': 'я̋',
-        'А': 'А͠',
-        'Б': 'Б̋',
-        'В': 'В͒͠',
-        'Г': 'Г͒͠',
-        'Д': 'Д̋',
-        'Е': 'Е',
-        'Ё': 'Ё͒͠',
-        'Ж': 'Ж͒',
-        'З': 'З̋̋͠',
-        'И': 'И',
-        'Й': 'Й͒͠',
-        'К': 'К̋̋',
-        'Л': 'Л̋͠',
-        'М': 'М͒͠',
-        'Н': 'Н͒',
-        'О': 'О̋',
-        'П': 'П̋͠',
-        'Р': 'Р̋͠',
-        'С': 'С͒',
-        'Т': 'Т͒',
-        'У': 'У͒͠',
-        'Ф': 'Ф̋̋͠',
-        'Х': 'Х͒͠',
-        'Ц': 'Ц̋',
-        'Ч': 'Ч̋͠',
-        'Ш': 'Ш͒͠',
-        'Щ': 'Щ̋',
-        'Ъ': 'Ъ̋͠',
-        'Ы': 'Ы̋͠',
-        'Ь': 'Ь̋',
-        'Э': 'Э͒͠͠',
-        'Ю': 'Ю̋͠',
-        'Я': 'Я̋',
-        ' ': ' '
-    }
 
     skills = [
         "Стремительный прыжок",
@@ -228,37 +130,33 @@ def main():
 
     for number_heroes in range(count_heroes):
         hero_name = input("\nВведите имя персонажа: ")
-        runic_name = replace_letters(hero_name, letters)
 
-        runic_race, _ = choose_character_option(
+        character_race, _ = choose_character_option(
             character_race,
             "Выберите расу персонажа из предложенных: ",
-            letters
         )
 
-        runic_class, class_characteristics = choose_character_option(
+        character_class, class_characteristics = choose_character_option(
             character_classes,
             "Выберите класс персонажа из предложенных: ",
-            letters,
             clases_base
         )
 
         selected_skills = random.sample(skills, 3)
-        runic_skills = [replace_letters(skill, letters) for skill in selected_skills]
 
         dictionary = {
             "image_path": class_characteristics['image_path'],
-            "name": runic_name.capitalize(),
-            "character_race": runic_race,
-            "character_class": runic_class,
+            "name": hero_name.capitalize(),
+            "character_race": character_race,
+            "character_class": character_class,
             "strength": class_characteristics['strength'],
             "agility": class_characteristics['agility'],
             "intelligence": class_characteristics['intelligence'],
             "luck": class_characteristics['luck'],
             "temper": class_characteristics['temper'],
-            "skill_1": runic_skills[0],
-            "skill_2": runic_skills[1],
-            "skill_3": runic_skills[2],
+            "skill_1": selected_skills[0],
+            "skill_2": selected_skills[1],
+            "skill_3": selected_skills[2],
         }
 
         rendered_page = template.render(
