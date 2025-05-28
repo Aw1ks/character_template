@@ -23,10 +23,10 @@ def choose_character_option(list_options, character_input, clases_base=None):
                 print("Неверный номер. Попробуйте еще раз.")
 
         except ValueError:
-            input_lower = user_input.replace(' ', '').lower()
+            input_lower = user_input.strip().lower()
             correspondence = False
             for option in list_options:
-                if option.replace(' ', '').lower() == input_lower:
+                if option.strip().lower() == input_lower:
                     chosen_option = option
                     if clases_base:
                         characteristics = clases_base.get(option, {})
